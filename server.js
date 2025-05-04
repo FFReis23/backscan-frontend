@@ -1,59 +1,49 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
-const mongoose = require("mongoose");
+const sqlite3 = require("sqlite3").verbose();
 
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
-// Conectando ao MongoDB
-mongoose.connect("mongodb://localhost:27017/localizacao", {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
-.then(() => console.log("Conectado ao MongoDB"))
-.catch((err) => console.error("Erro de conexão com o MongoDB:", err));
+// Criação e conexão com o banco
+const db = new sqlite3.Database("./localizacoes.db");
 
-// Definindo o modelo de dados de localização
-const LocationSchema = new mongoose.Schema({
-  latitude: { type: Number, required: true },
-  longitude: { type: Number, required: true },
-  mapsLink: { type: String, required: true },
-  timestamp: { type: Date, default: Date.now },
-});
+// Cria a tabela (executado uma vez)
+db.run(`CREATE TABLE IF NOT EXISTS localizacoes (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  latitude TEXT,
+  longitude TEXT,
+  maps TEXT,
+  data_envio DATETIME DEFAULT CURRENT_TIMESTAMP
+)`);
 
-const Location = mongoose.model("Location", LocationSchema);
-
-// Rota para receber e armazenar a localização
-app.post("/send-location", async (req, res) => {
+// Endpoint para receber e salvar localização
+app.post("/send-location", (req, res) => {
   const { latitude, longitude, maps } = req.body;
 
-  const location = new Location({
-    latitude,
-    longitude,
-    mapsLink: maps,
-  });
-
-  try {
-    // Salvar a localização no banco de dados
-    await location.save();
-    res.status(200).json({ success: true, message: "Localização salva com sucesso." });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ success: false, message: "Erro ao salvar a localização no banco de dados." });
-  }
+  db.run(
+    `INSERT INTO localizacoes (latitude, longitude, maps) VALUES (?, ?, ?)`,
+    [latitude, longitude, maps],
+    function (err) {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ success: false });
+      }
+      res.status(200).json({ success: true, id: this.lastID });
+    }
+  );
 });
 
-// Rota para listar as localizações salvas
-app.get("/locations", async (req, res) => {
-  try {
-    const locations = await Location.find();
-    res.status(200).json(locations);
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ success: false, message: "Erro ao recuperar as localizações." });
-  }
+// Endpoint para consultar localizações
+app.get("/localizacoes", (req, res) => {
+  db.all("SELECT * FROM localizacoes ORDER BY data_envio DESC", [], (err, rows) => {
+    if (err) {
+      return res.status(500).json({ success: false });
+    }
+    res.json(rows);
+  });
 });
 
 app.listen(8088, () => {
