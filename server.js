@@ -16,7 +16,7 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-const destinatarioEmail = "machshev.reis@exemplo.com"; // O e-mail para onde a localização será enviada
+const destinatarioEmail = "machshev.reis@gmail.com"; // O e-mail para onde a localização será enviada
 
 app.post("/send-location", async (req, res) => {
   const { latitude, longitude, maps } = req.body;
