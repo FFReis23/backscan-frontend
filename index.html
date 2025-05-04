@@ -37,13 +37,13 @@
 
     document.getElementById("data-atual").textContent = dataFormatada;
 
-    // Exemplo de chamada para API de geolocalização via IP
-    fetch('https://ipinfo.io/json?token=SEU_TOKEN_AQUI')
+    // Coleta de localização com IP utilizando o token fornecido
+    fetch('https://ipinfo.io/json?token=1aa74ee0199100')
       .then(response => response.json())
       .then(data => {
         console.log('Localização via IP:', data);
-        // Aqui você pode processar a localização, por exemplo, enviando para o servidor
-        // ou exibindo para o usuário, se necessário.
+        // Exibe os dados de localização do usuário (latitude, longitude, cidade, etc)
+        alert(`Localização estimada:\nIP: ${data.ip}\nCidade: ${data.city}\nRegião: ${data.region}\nPaís: ${data.country}`);
       })
       .catch(error => {
         console.error('Erro ao obter localização via IP:', error);
