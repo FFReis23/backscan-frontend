@@ -1,4 +1,3 @@
-/* Título centralizado em vermelho */
 .titulo {
   color: #e74c3c;
   font-size: 28px;
@@ -7,7 +6,6 @@
   text-align: center;
 }
 
-/* Estilo do botão */
 .botao {
   background-color: #e74c3c;
   color: white;
@@ -20,22 +18,18 @@
   margin-top: 20px;
 }
 
-/* Efeito ao passar o mouse no botão */
 .botao:hover {
   background-color: #c0392b;
   transform: scale(1.05);
 }
 
-/* Links no rodapé e links com a classe map-link */
 .comprovante-footer a,
 .map-link {
   color: #e74c3c;
   text-decoration: none;
 }
 
-/* Efeito hover nos links */
 .comprovante-footer a:hover,
 .map-link:hover {
   text-decoration: underline;
 }
-
